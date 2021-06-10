@@ -342,7 +342,6 @@ public class Compilador {
         if(!X.equals("VAR") && !X.equals("PRO") && !X.equals("IDENT") && !X.equals("RUN") && !X.equals("RD")  && !X.equals("WR") && !X.equals("STR") && !X.equals("WHL") && !X.equals("WHEN")){
             
             if(X.equals("CON")){
-            X = c.nextToken();
             if(Ident(X)){
                 identificador = X;
                 X = c.nextToken();
