@@ -1,6 +1,5 @@
-package Compiladores;
-
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Concatenador {
     charByChar cbc=new charByChar();
@@ -11,9 +10,19 @@ public class Concatenador {
     char[] caracteres;
     char aux;
     int contador=0;
+    int contador_letras=0;
     int entro=0;
-    
-public String verificar(){
+    ArrayList<String> palabras_totales = new ArrayList<>();
+    StringBuilder[] tokens;
+    public void previous_token(){
+        
+        this.contador_letras = palabras_totales.get(palabras_totales.size()-1).length();
+        // /System.out.println("La palabra que se saco fue:"+palabras_totales.get(palabras_totales.size()-1)+"Y su tamano es:"+palabras_totales.get(palabras_totales.size()-1).length());
+        this.contador = this.contador - (this.contador_letras);
+        
+
+    }
+public String nextToken(){
     StringBuilder sb= new StringBuilder();
 
     try{
@@ -39,11 +48,12 @@ public String verificar(){
         sb.append(caracter);
         contador++;
         caracter=caracteres[contador];
-    while(((caracter>=65 && caracter<=90) || (caracter>=97 && caracter<=122) || (caracter>=49 && caracter<=57)) && caracteres.length>contador && caracter!=32){
+    while(((caracteres[contador]>=65 && caracteres[contador]<=90) || (caracteres[contador]>=97 && caracteres[contador]<=122) || (caracteres[contador]>=49 && caracteres[contador]<=57)) && caracteres.length>contador && caracteres[contador]!=32){
         caracter=caracteres[contador];                  
         sb.append(caracter);            
         contador++;
     }
+    palabras_totales.add(sb.toString());
     return sb.toString();
     }
     else if((caracter>=49 && caracter<=57) ){
@@ -54,6 +64,7 @@ public String verificar(){
             sb.append(caracter);
             
         }while(((caracter>=48 && caracter<=57)|| caracter=='.') && contador<caracteres.length);
+        palabras_totales.add(sb.toString());
         return sb.toString();
     }
     //-----------------------------PARES DE CARACTERES A DEVOLVER---------------------------------//
@@ -67,6 +78,7 @@ public String verificar(){
             sb.append(caracter);
             
         }
+        palabras_totales.add(sb.toString());
         return sb.toString();
     }
     else if(caracter=='<'){
@@ -76,6 +88,7 @@ public String verificar(){
         if(caracter=='<'){
             sb.append(aux);
             sb.append(caracter);
+            palabras_totales.add(sb.toString());
             return sb.toString();
         }
         
@@ -87,10 +100,65 @@ public String verificar(){
         if(caracter=='>'){
             sb.append(aux);
             sb.append(caracter);
+            palabras_totales.add(sb.toString());
             return sb.toString();
         }
     }
+    else if(caracter==';'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    else if(caracter=='('){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    else if(caracter==')'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    
+    else if(caracter=='-'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    
+    else if(caracter=='+'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    
+    else if(caracter=='*'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    
+    else if(caracter=='/'){
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
+    else if(caracter == '.'){
+        
+        sb.append(caracter);
+        contador++;
+        palabras_totales.add(sb.toString());
+        return sb.toString();
+    }
 }
+
     catch(IOException e){
         e.printStackTrace();
     }
@@ -105,10 +173,31 @@ public boolean validar(String palabra){
 }
     return esvalida;
 }
-public static void main(String []as){
-    Concatenador c= new Concatenador();
-    String prueba=c.verificar();
-    System.out.println(c.validar(prueba));
 
+public void hacer_tokens(String cadena){
+    int c=0;
+    tokens = new StringBuilder[1000];
+    for(int i = 0; i<cadena.length(); i++){
+        if(cadena.charAt(i) != 32){
+            tokens[c].append(cadena.charAt(i));
+        }
+    }
+}
+public void siguiente_token(){
+    contador++;
+}
+public static void main(String []as){
+    Concatenador c = new Concatenador();
+    int contador = 0;
+    while(contador<16){
+    String prueba = c.nextToken();
+    System.out.println(prueba);
+    contador++;
+    }
+
+    c.previous_token();
+    String prueba = c.nextToken();
+    System.out.println(prueba);
+    
 }
 }
