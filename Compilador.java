@@ -1,16 +1,23 @@
+import java.util.ArrayList;
+
 public class Compilador {
     Concatenador c = new Concatenador();
-    
-    
-    
+    static ArrayList<String> identificadores = new ArrayList<String>();
+    static ArrayList<String> tipos = new ArrayList<String>();
+    private Boolean compilo = true;
     
     //<PROGRAMA>::=BLOQUE
     public void Programa(){
         String X;
         Bloque();
-        X = c.nextToken();
+        X = c.palabras_totales.get(c.palabras_totales.size()-1);
         if(X.equals(".") ){
-            System.out.println("El programa compilo exitosamente");
+            if(compilo){
+                System.out.println("El programa compilo exitosamente.");
+            }else{
+                System.out.println("Fallo en la compilación.");
+            }
+            
         }
         else{
             Error(1);
@@ -28,6 +35,13 @@ public class Compilador {
     public void Proposicion(){
        String X = "";
         if(Ident(X)){
+            String last_word = c.palabras_totales.get(c.palabras_totales.size()-1);
+            int index = returnIndexOf(identificadores, last_word);
+            if(index!=-1){
+                if(!tipos.get(index).equals("ENT")){
+                    Error(16);
+                }
+            }
             X = c.nextToken();
             if(X.equals("=")){
                 Expre();
@@ -182,7 +196,8 @@ public class Compilador {
     } 
     // <AUX7>::=<SIMART><FACTOR><AUX7>
     public void Aux7(){
-        String X = c.nextToken();
+        //TODO: Checar si aquí se debe avanzar un token
+        String X = " ";
         if(!X.equals(")") && !X.equals("=?") && !X.equals("=/") && !X.equals(">>") && !X.equals("=>")  && !X.equals("<<") && !X.equals("=<") && !X.equals("THEN") && !X.equals("RUN") && !X.equals("RD") && !X.equals("IDENT") && !X.equals("STR") && !X.equals("WR")  && !X.equals("WHEN") && !X.equals("WHL") && !X.equals(";") && !X.equals(",")){
         Simart(X);
         Factor();
@@ -208,7 +223,7 @@ public class Compilador {
                 resultado = true;
             break;
             default:
-            Error(390);
+            //Error(390);
 
         }
     }
@@ -219,24 +234,22 @@ public class Compilador {
 
     */
     public void Factor(){
-        String X = c.nextToken();
+        //TODO: Checar si aquí se debe avanzar un token
+        String X = " ";
         if(Ident(X)){
             X = c.nextToken();
-        }
-        else if(Num(X)){
-        X = c.nextToken();
-        }
-        else if(X.equals("(")){
+        }else if(Num(X)){
+            X = c.nextToken();
+        }else if(X.equals("(")){
             Expre();
-        if(X.equals(")")){
-            
-        }
-        else{
-            
-        }
-    }
-        else{
-            
+            if(X.equals(")")){
+                
+            }
+            else{
+                
+            }
+        }else{
+            //c.previous_token();
         }
     }
     //<AUXVAR>:== VAR <TIPOS> <IDENT><AUX2>
@@ -245,10 +258,11 @@ public class Compilador {
         if(!X.equals("PRO") && !X.equals("IDENT") && !X.equals("RUN") && !X.equals("RD") && !X.equals("WR")  && !X.equals("STR") && !X.equals("WHEN") && !X.equals("WHL")){
         
         if(X.equals("VAR")){
-        X = c.nextToken();
+            
+            X = c.nextToken();
             if(Tipos(X)){
-        
-                if(Ident(X)){
+                tipos.add(X);
+                if(IdentDeclaration(X)){
                     Aux2();
                 }
                 else{
@@ -277,11 +291,13 @@ public class Compilador {
         String X = c.nextToken();
         if(!X.equals("PRO") && !X.equals("IDENT") && !X.equals("RUN") && !X.equals("RD") && !X.equals("WR")  && !X.equals("STR") && !X.equals("WHEN") && !X.equals("WHL")){
         if(X.equals(",")){
-            Ident(X);
+            tipos.add("CON");
+            IdentDeclaration(X);
             Aux2();
         }
         else if(X.equals("CON")){
-                Ident(X);
+                tipos.add(X);
+                IdentDeclaration(X);
                 X = c.nextToken();
                 if(X == "="){
                     Num(X);
@@ -302,7 +318,8 @@ public class Compilador {
         if(!X.equals("IDENT") && !X.equals("RUN") && !X.equals("RD")  && !X.equals("WR") && !X.equals("STR") && !X.equals("WHL") && !X.equals("WHEN")){
     
         if(X.equals("PRO")){
-            if(Ident(X)){
+            tipos.add("PRO");
+            if(IdentDeclaration(X)){
                 
             }else{
                 Error(8);
@@ -330,6 +347,15 @@ public class Compilador {
         }
         return validacion;
     }
+
+    public int returnIndexOf(ArrayList<String> lista, String buscado){
+        for(int i=0;i<lista.size();i++){
+            if(lista.get(i).equals(buscado)){
+                return i;
+            }
+        }
+        return -1;
+    }
     /*<AUXCON>::=CON <IDENT> = <NUM><AUX1>
     FOLLOWS(AUXCON) = {FIRST(AUXVAR)} = {“VAR” + FIRST(AUXPRO)}} = 
     {“VAR + “PRO” + FIRST(PROPOSICION) = 
@@ -342,7 +368,9 @@ public class Compilador {
         if(!X.equals("VAR") && !X.equals("PRO") && !X.equals("IDENT") && !X.equals("RUN") && !X.equals("RD")  && !X.equals("WR") && !X.equals("STR") && !X.equals("WHL") && !X.equals("WHEN")){
             
             if(X.equals("CON")){
-            if(Ident(X)){
+                //X = c.nextToken();
+                tipos.add(X);
+            if(IdentDeclaration(X)){
                 identificador = X;
                 X = c.nextToken();
                 if(X.equals("=")){
@@ -377,13 +405,22 @@ public class Compilador {
     */
     public void Aux1(){
         String X = c.nextToken();
-        if(X == "CON"){
-            Ident(X);
-            if(X == "="){
-                Num(X);
-                Aux1();
-            }
-        else if(X == ";"){
+        // if(X.equals("CON")){
+        //     tipos.add(X);
+        //     IdentDeclaration(X);
+        //     if(X.equals("=")){
+        //         Num(X);
+        //         Aux1();
+        //     }
+        // else if(X.equals(";")){
+
+            if(X == "CON"){
+                IdentDeclaration(X);
+                if(X == "="){
+                    Num(X);
+                    Aux1();
+                }
+            else if(X == ";"){
 
         }
         else{
@@ -413,7 +450,7 @@ public boolean Ident( String X ){
     boolean es_valido = true;
     String[] palabras_invalidas=new String[]{"VAR","PRO","ENT","PUN","STR",
     "CHR","RUN","RD","WR",">STR","END<","WHEN","THEN","WHL","RUN","=","=?","=/",
-    "<<","=<",">>","=>","+","-","*","/",".",",",";","(",")","<NUM>","<IDENT>"};
+    "<<","=<",">>","=>","+","-","*","/",".",",",";","(",")","NUM","IDENT"};
     
     for(int i = 0; i < palabras_invalidas.length; i++){
         if(X.equals(palabras_invalidas[i])){
@@ -421,21 +458,58 @@ public boolean Ident( String X ){
             break;
         }
     }
+
+    if(!existeIdentificador(X)){
+        System.out.print("Error en: "+X+", ");
+        Error(15);
+    }
+
     if(es_valido == false){
         c.previous_token();
     }
+
    return es_valido;
 }
 
+public boolean IdentDeclaration( String X ){
+    X = c.nextToken();
+    boolean es_valido = true;
+    String[] palabras_invalidas=new String[]{"VAR","PRO","ENT","PUN","STR",
+    "CHR","RUN","RD","WR",">STR","END<","WHEN","THEN","WHL","RUN","=","=?","=/",
+    "<<","=<",">>","=>","+","-","*","/",".",",",";","(",")","NUM","IDENT, "};
+    
+    for(int i = 0; i < palabras_invalidas.length; i++){
+        if(X.equals(palabras_invalidas[i])){
+            es_valido = false;
+            break;
+        }
+    }
 
+    if(existeIdentificador(X)){
+        System.out.print("Error en: "+X+", ");
+        Error(14);
+    }
 
+    if(es_valido == false){
+        c.previous_token();
+    }else{
+        identificadores.add(X);
+    }
 
+   return es_valido;
+}
 
-
-
-
+public Boolean existeIdentificador(String identificador){
+    for(int i = 0; i < identificadores.size(); i++){
+        if(identificador.equals(identificadores.get(i))){
+            return true;
+        }
+    }
+    return false;
+}
     
     public void Error(int i){
+        compilo = false;
         switch(i){
             case 1:
                 System.err.println("Error en PROGRAMA, se esperaba un punto.");
@@ -474,8 +548,17 @@ public boolean Ident( String X ){
                 System.err.println("Error en AUXVAR, se esperaba un IDENTIFICADOR");
                 break;
             case 13:
-            System.err.println("Error en AUXVAR, se esperaba un TIPO");
-            break;
+                System.err.println("Error en AUXVAR, se esperaba un TIPO");
+                break;
+            case 14:
+                System.err.println("El IDENTIFICADOR ya existe.");
+                break;
+            case 15:
+                System.err.println("IDENTIFICADOR no declarado.");
+                break;
+            case 16:
+                System.err.println("Error en PROPOSICION, tipo de dato no válido.");
+                break;
             default:
             System.err.println("Error desconocido");
             break;
@@ -486,5 +569,9 @@ public boolean Ident( String X ){
     public static void main(String[]as){
         Compilador c = new Compilador();
         c.Programa();
+        // for(int i = 0;i<identificadores.size();i++){
+        //     System.out.print("\n"+tipos.get(i)+ " ");
+        //     System.out.print(identificadores.get(i)+"\n");
+        // }
     }
 }

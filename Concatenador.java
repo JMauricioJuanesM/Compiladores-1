@@ -6,7 +6,7 @@ public class Concatenador {
     char caracter;
     String[] palabras_validas=new String[]{"CON","VAR","PRO","ENT","PUN","STR",
     "CHR","RUN","RD","WR",">STR","END<","WHEN","THEN","WHL","RUN","=","=?","=/",
-    "<<","=<",">>","=>","+","-","*","/",".",",",";","(",")","<NUM>","<IDENT>"};
+    "<<","=<",">>","=>","+","-","*","/",".",",",";","(",")","NUM","IDENT"};
     char[] caracteres;
     char aux;
     int contador=0;
